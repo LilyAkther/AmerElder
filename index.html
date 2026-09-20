@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>AmarElder</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+
+    <nav class="navbar">
+        <h1 onclick="showHome()" class="logo">AmarElder</h1>
+        <div id="nav-auth">
+            <button onclick="openAuth('login')" class="btn-outline">Login</button>
+            <button onclick="openAuth('signup')" class="btn-solid">Sign Up</button>
+        </div>
+    </nav>
+
+
+    <main id="main-content" class="hero-fullscreen">
+        <div class="hero-content">
+            <h2>Together for a Safer & Happier Tomorrow</h2>
+            <p>AmarElder connects elderly people with trusted caregivers and kind community members to ensure help, care
+                and companionship.</p>
+            <button onclick="openAuth('signup')" class="btn-solid">Get Started</button>
+        </div>
+        <div class="hero-image-container">
+            <img src="c:\Users\Lily\OneDrive\Pictures\images.jpg" alt="Elderly Care">
+        </div>
+    </main>
+
+    <div id="auth-modal" class="modal hidden">
+        <div class="modal-content">
+            <button onclick="closeAuth()" class="close-btn">✕</button>
+            <h2 id="modal-title">Login</h2>
+
+            <form onsubmit="handleAuth(event)">
+                <div id="role-div" class="hidden">
+                    <label>Select Role</label>
+                    <select id="role">
+                        <option value="Elder">Elder</option>
+                        <option value="Helper">Helper / Caregiver</option>
+                    </select>
+                </div>
+
+                <input type="text" id="name" placeholder="Full Name" class="hidden">
+                <input type="email" id="email" placeholder="Email Address" required>
+                <input type="password" id="password" placeholder="Password" required>
+
+                <button type="submit" id="submit-btn" class="btn-solid w-full">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
