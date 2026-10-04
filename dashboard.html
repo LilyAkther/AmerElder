@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AmarElder Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <h1 class="logo" onclick="showHome()">AmarElder</h1>
+        <div class="nav-right">
+            <span id="userName"></span>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+
+    <div class="layout">
+        <aside class="sidebar">
+            <h3>Dashboard Menu</h3>
+            <button onclick="showSection('overview')">Dashboard Overview</button>
+            <button onclick="showSection('profile')">My Profile</button>
+            <button onclick="showSection('categories')">Help Categories</button>
+            <button onclick="showSection('create')">Request Help</button>
+            <button onclick="showSection('requests')">Help Requests</button>
+            <button onclick="showSection('notifications')">Notifications</button>
+            <button onclick="showSection('history')">History & Rating</button>
+            <button onclick="showSection('reports')">Report an Issue</button>
+        </aside>
+
+        <main class="content">
+            <section id="overview" class="section">
+                <h2 id="welcome">Welcome to AmarElder!</h2>
+                <p>Care, support and companionship for a safer and happier tomorrow.</p>
+
+                <div class="stats">
+                    <div class="stat-card">
+                        <h3>Total Requests</h3>
+                        <p id="totalRequests">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Pending Requests</h3>
+                        <p id="pendingRequests">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Completed Requests</h3>
+                        <p id="completedRequests">0</p>
+                    </div>
+                </div>
+
+                <h3>Recent Help Requests</h3>
+                <div id="recentRequests"></div>
+            </section>
+
+            <section id="profile" class="section hidden">
+                <h2>My Profile</h2>
+                <form id="profileForm">
+                    <label>Full Name</label>
+                    <input id="profileName" required>
+
+                    <label>Email</label>
+                    <input id="profileEmail" type="email" readonly>
+
+                    <label>Phone Number</label>
+                    <input id="profilePhone" type="tel" placeholder="Enter phone number">
+
+                    <label>Address</label>
+                    <textarea id="profileAddress" placeholder="Enter your address"></textarea>
+
+                    <button type="submit" class="primary-btn">Save Profile</button>
+                </form>
+                <p id="profileMessage"></p>
+            </section>
+
+            <section id="categories" class="section hidden">
+                <h2>Help Categories</h2>
+                <div class="category-grid">
+                    <div class="category-card">💊<h3>Medicine Help</h3>
+                        <p>Help with collecting medicines.</p>
+                    </div>
+                    <div class="category-card">🛒<h3>Shopping</h3>
+                        <p>Help with groceries and daily needs.</p>
+                    </div>
+                    <div class="category-card">🏥<h3>Hospital Support</h3>
+                        <p>Help with hospital visits.</p>
+                    </div>
+                    <div class="category-card">📄<h3>Document Help</h3>
+                        <p>Help with necessary documents.</p>
+                    </div>
+                    <div class="category-card">🤝<h3>Companionship</h3>
+                        <p>Friendly visits and conversations.</p>
+                    </div>
+                    <div class="category-card">🏠<h3>Daily Assistance</h3>
+                        <p>Support with everyday tasks.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="create" class="section hidden">
+                <h2>Request Help</h2>
+                <form id="requestForm">
+                    <label>Help Category</label>
+                    <select id="requestCategory" required>
+                        <option value="">Choose a category</option>
+                        <option>Medicine Help</option>
+                        <option>Shopping</option>
+                        <option>Hospital Support</option>
+                        <option>Document Help</option>
+                        <option>Companionship</option>
+                        <option>Daily Assistance</option>
+                    </select>
+
+                    <label>Describe Your Request</label>
+                    <textarea id="requestDescription" required placeholder="Explain what help you need"></textarea>
+
+                    <label>Location</label>
+                    <input id="requestLocation" required placeholder="Enter your location">
+
+                    <label>Priority</label>
+                    <select id="requestPriority">
+                        <option>Normal</option>
+                        <option>Urgent</option>
+                    </select>
+
+                    <button type="submit" class="primary-btn">Submit Request</button>
+                </form>
+            </section>
+
+            <section id="requests" class="section hidden">
+                <h2>Help Requests</h2>
+                <div id="requestList"></div>
+            </section>
+
+            <section id="notifications" class="section hidden">
+                <h2>Notifications</h2>
+                <div id="notificationList"></div>
+            </section>
+
+            <section id="history" class="section hidden">
+                <h2>History & Rating</h2>
+                <div id="historyList"></div>
+            </section>
+
+            <section id="reports" class="section hidden">
+                <h2>Report an Issue</h2>
+                <form id="reportForm">
+                    <label>Issue Type</label>
+                    <select id="reportType" required>
+                        <option value="">Choose an issue</option>
+                        <option>Safety Concern</option>
+                        <option>Incorrect Information</option>
+                        <option>Inappropriate Behaviour</option>
+                        <option>Technical Problem</option>
+                        <option>Other</option>
+                    </select>
+
+                    <label>Details</label>
+                    <textarea id="reportDetails" required placeholder="Describe the issue"></textarea>
+
+                    <button type="submit" class="primary-btn">Submit Report</button>
+                </form>
+                <h3>My Reports</h3>
+                <div id="reportList"></div>
+            </section>
+        </main>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+
+</html>
