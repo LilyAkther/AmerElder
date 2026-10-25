@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AmarElder - Elder Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+
+<body>
+
+    <header class="topbar">
+        <a href="../index.html" class="logo">AmarElder</a>
+        <div>
+            <span id="userName">Elder</span>
+            <button onclick="logout()">Logout</button>
+        </div>
+    </header>
+
+    <main class="container">
+        <h1>Welcome, <span id="welcomeName">Elder</span>!</h1>
+        <p>Request help and stay connected with your community.</p>
+
+        <section class="stats">
+            <div class="card">
+                <h3>Total Requests</h3>
+                <p id="totalRequests">0</p>
+            </div>
+            <div class="card">
+                <h3>Pending Requests</h3>
+                <p id="pendingRequests">0</p>
+            </div>
+            <div class="card">
+                <h3>Completed Requests</h3>
+                <p id="completedRequests">0</p>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Request Help</h2>
+
+            <form id="requestForm">
+                <label for="category">Help Category</label>
+                <select id="category" required>
+                    <option value="">Choose a category</option>
+                    <option>Medicine Help</option>
+                    <option>Shopping</option>
+                    <option>Hospital Support</option>
+                    <option>Document Help</option>
+                    <option>Companionship</option>
+                    <option>Daily Assistance</option>
+                </select>
+
+                <label for="description">Description</label>
+                <textarea id="description" required></textarea>
+
+                <label for="location">Location</label>
+                <input id="location" required>
+
+                <label for="priority">Priority</label>
+                <select id="priority">
+                    <option>Normal</option>
+                    <option>Urgent</option>
+                </select>
+
+                <button type="submit">Submit Request</button>
+            </form>
+        </section>
+
+        <section class="card">
+            <h2>My Requests</h2>
+            <div id="myRequests"></div>
+        </section>
+
+        <section class="card">
+            <h2>Notifications</h2>
+            <div id="notifications"></div>
+        </section>
+
+        <section class="card">
+            <h2>My Profile</h2>
+            <form id="profileForm">
+                <label for="phone">Phone</label>
+                <input id="phone">
+
+                <label for="address">Address</label>
+                <input id="address">
+
+                <button type="submit">Save Profile</button>
+            </form>
+        </section>
+
+        <section class="card">
+            <h2>History & Rating</h2>
+            <div id="history"></div>
+        </section>
+    </main>
+
+    <script src="dashboard.js"></script>
+</body>
+
+</html>
