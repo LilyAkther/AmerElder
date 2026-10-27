@@ -1,1 +1,16 @@
-.panel h2{margin:8px 0}.stat{background:#fff}.quiz-card{min-height:170px}.quiz-card .btn{margin-top:8px}
+
+.panel h2 {
+    margin: 8px 0;
+}
+
+.stat {
+    background: #fff;
+}
+
+.quiz-card {
+    min-height: 170px;
+}
+
+.quiz-card .btn {
+    margin-top: 8px;
+}
