@@ -1,433 +1,177 @@
 
-let currentUser = JSON.parse(localStorage.getItem("user") || "null");
+const USERS_KEY = "ae_users";
+const REQUESTS_KEY = "ae_requests";
+const NOTICES_KEY = "ae_notifications";
 
-if (!currentUser) {
-    window.location.href = "index.html";
+const current = JSON.parse(localStorage.getItem("user") || "null");
+
+if (!current || current.role !== "Helper") {
+    location.href = "../index.html";
 }
 
-let requests = JSON.parse(localStorage.getItem("ae_requests") || "[]");
-let notifications = JSON.parse(localStorage.getItem("ae_notifications") || "[]");
-let reports = JSON.parse(localStorage.getItem("ae_reports") || "[]");
-
-function saveData() {
-    localStorage.setItem("ae_requests", JSON.stringify(requests));
-    localStorage.setItem("ae_notifications", JSON.stringify(notifications));
-    localStorage.setItem("ae_reports", JSON.stringify(reports));
+function read(key) {
+    return JSON.parse(localStorage.getItem(key) || "[]");
 }
 
-function escapeHTML(value) {
-    return String(value ?? "").replace(/[&<>"']/g, function (char) {
-        return {
-            "&": "&amp;",
-            "<": "&lt;",
-            ">": "&gt;",
-            '"': "&quot;",
-            "'": "&#39;"
-        }[char];
-    });
+function write(key, data) {
+    localStorage.setItem(key, JSON.stringify(data));
 }
 
-function showHome() {
-    window.location.href = "index.html";
-}
+function notify(email, message) {
+    let notices = read(NOTICES_KEY);
 
-function logout() {
-    localStorage.removeItem("user");
-    window.location.href = "index.html";
-}
-
-function showSection(sectionId) {
-    document.querySelectorAll(".section").forEach(function (section) {
-        section.classList.add("hidden");
-    });
-
-    document.getElementById(sectionId).classList.remove("hidden");
-
-    if (sectionId === "overview") renderOverview();
-    if (sectionId === "requests") renderRequests();
-    if (sectionId === "notifications") renderNotifications();
-    if (sectionId === "history") renderHistory();
-    if (sectionId === "reports") renderReports();
-}
-
-function addNotification(message, email) {
-    notifications.unshift({
-        id: Date.now() + Math.random(),
+    notices.push({
         email: email,
         message: message,
-        date: new Date().toLocaleString(),
-        read: false
-    });
-}
-
-function getMyRequests() {
-    return requests.filter(function (request) {
-        return request.email === currentUser.email ||
-            request.helperEmail === currentUser.email;
-    });
-}
-
-function renderOverview() {
-    const mine = getMyRequests();
-
-    document.getElementById("totalRequests").textContent = mine.length;
-
-    document.getElementById("pendingRequests").textContent =
-        mine.filter(request => request.status === "Pending").length;
-
-    document.getElementById("completedRequests").textContent =
-        mine.filter(request => request.status === "Completed").length;
-
-    document.getElementById("recentRequests").innerHTML =
-        mine.slice(0, 3).map(request => `
-            <div class="item-card">
-                <h3>${escapeHTML(request.category)}</h3>
-                <p>${escapeHTML(request.description)}</p>
-                <p>Status: <span class="status">${escapeHTML(request.status)}</span></p>
-            </div>
-        `).join("") || "<p>No requests yet.</p>";
-}
-
-function renderProfile() {
-    document.getElementById("userName").textContent =
-        currentUser.name + " (" + currentUser.role + ")";
-
-    document.getElementById("welcome").textContent =
-        "Welcome to your Dashboard, " + currentUser.name + "!";
-
-    document.getElementById("profileName").value = currentUser.name || "";
-    document.getElementById("profileEmail").value = currentUser.email || "";
-    document.getElementById("profilePhone").value = currentUser.phone || "";
-    document.getElementById("profileAddress").value = currentUser.address || "";
-}
-
-document.getElementById("profileForm").addEventListener("submit", function (event) {
-    event.preventDefault();
-
-    currentUser.name = document.getElementById("profileName").value.trim();
-    currentUser.phone = document.getElementById("profilePhone").value.trim();
-    currentUser.address = document.getElementById("profileAddress").value.trim();
-
-    localStorage.setItem("user", JSON.stringify(currentUser));
-
-    let users = JSON.parse(localStorage.getItem("ae_users") || "[]");
-
-    users = users.map(function (user) {
-        if (user.email === currentUser.email) {
-            return {
-                ...user,
-                name: currentUser.name,
-                phone: currentUser.phone,
-                address: currentUser.address
-            };
-        }
-
-        return user;
+        date: new Date().toISOString()
     });
 
-    localStorage.setItem("ae_users", JSON.stringify(users));
+    write(NOTICES_KEY, notices);
+}
 
-    document.getElementById("profileMessage").textContent =
-        "Profile updated successfully!";
+function render() {
+    document.getElementById("welcome").textContent = "Welcome, " + current.name + "!";
 
-    renderProfile();
-});
+    let all = read(REQUESTS_KEY);
 
-document.getElementById("requestForm").addEventListener("submit", function (event) {
-    event.preventDefault();
+    let available = all.filter(r => r.status === "Pending");
+    let mine = all.filter(r => r.helperEmail === current.email);
+    let accepted = mine.filter(r => r.status === "Accepted");
+    let completed = mine.filter(r => r.status === "Completed");
 
-    if (currentUser.role !== "Elder") {
-        alert("Only Elder accounts can create help requests.");
-        return;
+    document.getElementById("available-count").textContent = available.length;
+    document.getElementById("accepted-count").textContent = accepted.length;
+    document.getElementById("completed-count").textContent = completed.length;
+    document.getElementById("total-count").textContent = mine.length;
+
+    let availableList = document.getElementById("available-list");
+
+    if (available.length === 0) {
+        availableList.innerHTML = "<p>No pending requests right now.</p>";
+    } else {
+        availableList.innerHTML = available.map(r => `
+            <article class="request-card">
+                <span class="tag">${r.priority}</span>
+                <h3>${r.category}</h3>
+                <p>${r.description}</p>
+                <p><b>Elder:</b> ${r.elderName}</p>
+                <p><b>Location:</b> ${r.location}</p>
+                <button class="btn" onclick="acceptRequest('${r.id}')">Accept Request</button>
+            </article>
+        `).join("");
     }
 
-    const request = {
-        id: Date.now(),
-        name: currentUser.name,
-        email: currentUser.email,
-        category: document.getElementById("requestCategory").value,
-        description: document.getElementById("requestDescription").value.trim(),
-        location: document.getElementById("requestLocation").value.trim(),
-        priority: document.getElementById("requestPriority").value,
-        status: "Pending",
-        helperEmail: "",
-        helperName: "",
-        rating: 0,
-        date: new Date().toLocaleString()
-    };
+    let acceptedList = document.getElementById("accepted-list");
 
-    requests.unshift(request);
-
-    addNotification(
-        "Your help request has been submitted.",
-        currentUser.email
-    );
-
-    saveData();
-    this.reset();
-
-    alert("Help request submitted successfully!");
-
-    showSection("requests");
-});
-
-function renderRequests() {
-    const container = document.getElementById("requestList");
-
-    if (currentUser.role === "Helper") {
-        container.innerHTML = requests.map(function (request) {
-            let actions = "";
-
-            if (request.email === currentUser.email) {
-                actions = "<p>You created this request.</p>";
-            } else if (request.status === "Pending" && !request.helperEmail) {
-                actions = `
-                    <button class="action-btn" onclick="acceptRequest(${request.id})">
-                        I Can Help
-                    </button>
-                `;
-            } else if (request.helperEmail === currentUser.email &&
-                request.status !== "Completed") {
-                actions = `
-                    <button class="action-btn" onclick="updateStatus(${request.id}, 'In Progress')">
-                        Start Helping
-                    </button>
-                    <button class="action-btn" onclick="updateStatus(${request.id}, 'Completed')">
-                        Mark Completed
-                    </button>
-                `;
-            }
-
-            return `
-                <div class="item-card">
-                    <h3>${escapeHTML(request.category)}</h3>
-                    <p><b>Elder:</b> ${escapeHTML(request.name)}</p>
-                    <p><b>Description:</b> ${escapeHTML(request.description)}</p>
-                    <p><b>Location:</b> ${escapeHTML(request.location)}</p>
-                    <p><b>Priority:</b> ${escapeHTML(request.priority)}</p>
-                    <p><b>Status:</b> <span class="status">${escapeHTML(request.status)}</span></p>
-                    <p><b>Helper:</b> ${escapeHTML(request.helperName || "Not assigned")}</p>
-                    ${actions}
-                </div>
-            `;
-        }).join("") || "<p>No help requests available.</p>";
-
-        return;
+    if (mine.length === 0) {
+        acceptedList.innerHTML = "<p>You have not accepted any requests yet.</p>";
+    } else {
+        acceptedList.innerHTML = mine.slice().reverse().map(r => `
+            <article class="request-card">
+                <span class="tag">${r.status}</span>
+                <h3>${r.category}</h3>
+                <p>${r.description}</p>
+                <p><b>Elder:</b> ${r.elderName}</p>
+                <p><b>Location:</b> ${r.location}</p>
+                ${r.status === "Accepted" ? `
+                    <button class="btn" onclick="completeRequest('${r.id}')">Mark as Completed</button>
+                ` : `
+                    <p>Completed ${r.completedAt ? new Date(r.completedAt).toLocaleString() : ""}</p>
+                `}
+            </article>
+        `).join("");
     }
 
-    const mine = requests.filter(request => request.email === currentUser.email);
+    let notices = read(NOTICES_KEY).filter(n => n.email === current.email);
+    let notificationList = document.getElementById("notification-list");
 
-    container.innerHTML = mine.map(function (request) {
-        let ratingHTML = "";
-
-        if (request.status === "Completed" && request.rating === 0) {
-            ratingHTML = `
-                <label>Rate your helper</label>
-                <select id="rating-${request.id}" class="rating-select">
-                    <option value="5">5 - Excellent</option>
-                    <option value="4">4 - Very Good</option>
-                    <option value="3">3 - Good</option>
-                    <option value="2">2 - Fair</option>
-                    <option value="1">1 - Poor</option>
-                </select>
-                <button class="action-btn" onclick="rateRequest(${request.id})">Submit Rating</button>
-            `;
-        } else if (request.rating > 0) {
-            ratingHTML = `<p>Your Rating: ${request.rating}/5</p>`;
-        }
-
-        return `
-            <div class="item-card">
-                <h3>${escapeHTML(request.category)}</h3>
-                <p>${escapeHTML(request.description)}</p>
-                <p><b>Location:</b> ${escapeHTML(request.location)}</p>
-                <p><b>Priority:</b> ${escapeHTML(request.priority)}</p>
-                <p><b>Status:</b> <span class="status">${escapeHTML(request.status)}</span></p>
-                <p><b>Helper:</b> ${escapeHTML(request.helperName || "Not assigned")}</p>
-                <p><b>Date:</b> ${escapeHTML(request.date)}</p>
-                ${ratingHTML}
+    if (notices.length === 0) {
+        notificationList.innerHTML = "<p>No notifications yet.</p>";
+    } else {
+        notificationList.innerHTML = notices.slice().reverse().map(n => `
+            <div class="notice">
+                ${n.message}
+                <small>${new Date(n.date).toLocaleString()}</small>
             </div>
-        `;
-    }).join("") || "<p>You have not created any help requests.</p>";
+        `).join("");
+    }
 }
 
 function acceptRequest(id) {
-    const request = requests.find(item => item.id === id);
+    let all = read(REQUESTS_KEY);
+    let request = all.find(r => r.id === id);
 
-    if (!request || request.status !== "Pending" ||
-        request.email === currentUser.email || request.helperEmail) {
+    if (!request || request.status !== "Pending") {
         alert("This request is no longer available.");
-        renderRequests();
         return;
     }
 
-    request.helperEmail = currentUser.email;
-    request.helperName = currentUser.name;
     request.status = "Accepted";
+    request.helperName = current.name;
+    request.helperEmail = current.email;
 
-    addNotification(
-        currentUser.name + " accepted your " + request.category + " request.",
-        request.email
+    write(REQUESTS_KEY, all);
+
+    notify(
+        request.elderEmail,
+        current.name + " accepted your " + request.category + " request."
     );
 
-    addNotification(
-        "You accepted a help request from " + request.name + ".",
-        currentUser.email
-    );
-
-    saveData();
-    renderRequests();
-    renderOverview();
-    alert("Request accepted successfully!");
+    render();
 }
 
-function updateStatus(id, status) {
-    const request = requests.find(item => item.id === id);
+function completeRequest(id) {
+    let all = read(REQUESTS_KEY);
+    let request = all.find(r => r.id === id);
 
-    if (!request || request.helperEmail !== currentUser.email) {
-        alert("You cannot update this request.");
+    if (!request || request.helperEmail !== current.email || request.status !== "Accepted") {
         return;
     }
 
-    if (status === "In Progress") {
-        if (request.status !== "Accepted") {
-            alert("You can start helping after accepting the request.");
-            return;
-        }
-    } else if (status === "Completed") {
-        if (request.status !== "In Progress") {
-            alert("Start helping before marking it completed.");
-            return;
-        }
-    } else {
-        return;
+    request.status = "Completed";
+    request.completedAt = new Date().toISOString();
+
+    write(REQUESTS_KEY, all);
+
+    notify(
+        request.elderEmail,
+        current.name + " completed your " + request.category + " request."
+    );
+
+    render();
+}
+
+document.getElementById("profile-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    let users = read(USERS_KEY);
+    let user = users.find(u => u.email === current.email);
+
+    if (user) {
+        user.phone = document.getElementById("profile-phone").value;
+        user.address = document.getElementById("profile-address").value;
+        user.skills = document.getElementById("profile-skills").value;
+
+        write(USERS_KEY, users);
+
+        alert("Profile saved.");
     }
-
-    request.status = status;
-
-    addNotification(
-        "Your request status changed to " + status + ".",
-        request.email
-    );
-
-    addNotification(
-        "You updated a request to " + status + ".",
-        currentUser.email
-    );
-
-    saveData();
-    renderRequests();
-    renderOverview();
-}
-
-function rateRequest(id) {
-    const request = requests.find(item => item.id === id);
-
-    if (!request || request.email !== currentUser.email ||
-        request.status !== "Completed") {
-        alert("You cannot rate this request.");
-        return;
-    }
-
-    const rating = Number(document.getElementById("rating-" + id).value);
-
-    request.rating = rating;
-
-    addNotification(
-        "Your help request received a " + rating + "/5 rating.",
-        request.helperEmail
-    );
-
-    saveData();
-    renderRequests();
-    renderHistory();
-
-    alert("Thank you for your rating!");
-}
-
-function renderNotifications() {
-    const mine = notifications.filter(item => item.email === currentUser.email);
-
-    document.getElementById("notificationList").innerHTML =
-        mine.map(item => `
-            <div class="item-card">
-                <p>${escapeHTML(item.message)}</p>
-                <small>${escapeHTML(item.date)}</small>
-                ${!item.read ? `
-                    <button class="action-btn" onclick="markRead('${item.id}')">
-                        Mark as Read
-                    </button>
-                ` : "<p>Read</p>"}
-            </div>
-        `).join("") || "<p>No notifications yet.</p>";
-}
-
-function markRead(id) {
-    const item = notifications.find(notification =>
-        String(notification.id) === String(id) &&
-        notification.email === currentUser.email
-    );
-
-    if (item) {
-        item.read = true;
-        saveData();
-        renderNotifications();
-    }
-}
-
-function renderHistory() {
-    const mine = getMyRequests().filter(request =>
-        request.status === "Completed"
-    );
-
-    document.getElementById("historyList").innerHTML =
-        mine.map(request => `
-            <div class="item-card">
-                <h3>${escapeHTML(request.category)}</h3>
-                <p>${escapeHTML(request.description)}</p>
-                <p><b>Status:</b> Completed</p>
-                <p><b>Elder:</b> ${escapeHTML(request.name)}</p>
-                <p><b>Helper:</b> ${escapeHTML(request.helperName || "Not assigned")}</p>
-                <p><b>Rating:</b> ${request.rating ? request.rating + "/5" : "Not rated"}</p>
-                <p><b>Date:</b> ${escapeHTML(request.date)}</p>
-            </div>
-        `).join("") || "<p>No completed requests in your history.</p>";
-}
-
-document.getElementById("reportForm").addEventListener("submit", function (event) {
-    event.preventDefault();
-
-    reports.unshift({
-        id: Date.now(),
-        name: currentUser.name,
-        email: currentUser.email,
-        type: document.getElementById("reportType").value,
-        details: document.getElementById("reportDetails").value.trim(),
-        date: new Date().toLocaleString(),
-        status: "Submitted"
-    });
-
-    saveData();
-    this.reset();
-
-    alert("Your report has been submitted!");
-    renderReports();
 });
 
-function renderReports() {
-    const mine = reports.filter(report => report.email === currentUser.email);
-
-    document.getElementById("reportList").innerHTML =
-        mine.map(report => `
-            <div class="item-card">
-                <h3>${escapeHTML(report.type)}</h3>
-                <p>${escapeHTML(report.details)}</p>
-                <p><b>Status:</b> ${escapeHTML(report.status)}</p>
-                <small>${escapeHTML(report.date)}</small>
-            </div>
-        `).join("") || "<p>You have not submitted any reports.</p>";
+function logout() {
+    localStorage.removeItem("user");
+    location.href = "../index.html";
 }
 
-renderProfile();
-renderOverview();
-renderRequests();
+document.getElementById("profile-name").value = current.name;
+document.getElementById("profile-email").value = current.email;
+
+let saved = read(USERS_KEY).find(u => u.email === current.email);
+
+if (saved) {
+    document.getElementById("profile-phone").value = saved.phone || "";
+    document.getElementById("profile-address").value = saved.address || "";
+    document.getElementById("profile-skills").value = saved.skills || "";
+}
+
+render();
