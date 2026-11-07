@@ -1,64 +1,99 @@
 let isSignup = false;
-let currentUser = JSON.parse(localStorage.getItem('user')) || null;
 
-window.onload = () => {
-    if (currentUser) showDashboard();
-};
+function getUsers() {
+    return JSON.parse(localStorage.getItem("ae_users") || "[]");
+}
 
 function openAuth(type) {
-    isSignup = (type === 'signup');
-    document.getElementById('auth-modal').classList.remove('hidden');
-    document.getElementById('modal-title').innerText = isSignup ? 'Sign Up' : 'Login';
-    document.getElementById('submit-btn').innerText = isSignup ? 'Register' : 'Login';
 
-    document.getElementById('role-div').classList.toggle('hidden', !isSignup);
-    document.getElementById('name').classList.toggle('hidden', !isSignup);
+    isSignup = type === "signup";
+
+    document.getElementById("auth-modal").classList.remove("hidden");
+
+    document.getElementById("modal-title").textContent =
+        isSignup ? "Create Account" : "Login";
+
+    document.getElementById("submit-btn").textContent =
+        isSignup ? "Register" : "Login";
+
+    document.getElementById("role-div").classList.toggle("hidden", !isSignup);
+
+    document.getElementById("name").classList.toggle("hidden", !isSignup);
+
+    document.getElementById("name").required = isSignup;
+
+    document.getElementById("auth-message").textContent = "";
 }
 
 function closeAuth() {
-    document.getElementById('auth-modal').classList.add('hidden');
+    document.getElementById("auth-modal").classList.add("hidden");
 }
 
 function handleAuth(event) {
+
     event.preventDefault();
-    const email = document.getElementById('email').value;
+
+    let name = document.getElementById("name").value.trim();
+    let email = document.getElementById("email").value.trim().toLowerCase();
+    let password = document.getElementById("password").value;
+    let role = document.getElementById("role").value;
+
+    let users = getUsers();
+    let message = document.getElementById("auth-message");
 
     if (isSignup) {
-        currentUser = {
-            name: document.getElementById('name').value,
-            email: email,
-            role: document.getElementById('role').value
-        };
-        localStorage.setItem('user', JSON.stringify(currentUser));
-        alert('Sign Up Successful!');
-    } else {
-        currentUser = { name: "User", email: email, role: "Elder" };
-        alert('Login Successful!');
-    }
 
-    closeAuth();
-    showDashboard();
+        if (users.some(user => user.email === email)) {
+            message.textContent = "Email already registered.";
+            return;
+        }
+
+        let user = {
+            name: name,
+            email: email,
+            password: password,
+            role: role,
+            phone: "",
+            address: "",
+            skills: ""
+        };
+
+        users.push(user);
+
+        localStorage.setItem("ae_users", JSON.stringify(users));
+
+        loginUser(user);
+
+    } else {
+
+        let user = users.find(user =>
+            user.email === email && user.password === password
+        );
+
+        if (!user) {
+            message.textContent = "Invalid email or password.";
+            return;
+        }
+
+        loginUser(user);
+    }
 }
 
-function showDashboard() {
-    document.getElementById('nav-auth').innerHTML = `
-        <span style="font-weight:bold; color:#047857; margin-right:15px;">${currentUser.name} (${currentUser.role})</span>
-        <button onclick="logout()" style="background:#ef4444; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer;">Logout</button>
-    `;
+function loginUser(user) {
 
-    document.getElementById('main-content').innerHTML = `
-        <div class="dashboard">
-            <h2>Welcome to your Dashboard, ${currentUser.name}!</h2>
-            <p style="font-size: 18px; color: #065f46;">Role-based Authentication successful. Your role is: <strong>${currentUser.role}</strong></p>
-        </div>
-    `;
+    localStorage.setItem("user", JSON.stringify({
+        name: user.name,
+        email: user.email,
+        role: user.role
+    }));
+
+    if (user.role === "Elder") {
+        window.location.href = "elder/dashboard.html";
+    } else {
+        window.location.href = "helper/dashboard.html";
+    }
 }
 
 function showHome() {
-    location.reload();
-}
-
-function logout() {
-    localStorage.removeItem('user');
-    location.reload();
+    window.location.href = "index.html";
 }
