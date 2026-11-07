@@ -1,8 +1,12 @@
-body {
-    font-family: Arial, sans-serif;
+* {
     margin: 0;
     padding: 0;
-    background-color: #f9f9f9;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f8faf9;
     color: #333;
 }
 
@@ -10,93 +14,87 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 20px 6%;
     background: white;
-    padding: 20px 50px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .logo {
-    color: #047857;
-    font-size: 26px;
-    font-weight: bold;
+    color: #087f5b;
+    font-size: 28px;
     cursor: pointer;
-    margin: 0;
 }
 
-.hero-fullscreen {
+.btn {
+    background: #087f5b;
+    color: white;
+    border: none;
+    padding: 12px 22px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn:hover {
+    background: #056747;
+}
+
+.btn-outline {
+    background: white;
+    color: #087f5b;
+    border: 1px solid #087f5b;
+    padding: 11px 22px;
+    border-radius: 7px;
+    cursor: pointer;
+    margin-right: 8px;
+}
+
+.hero {
+    min-height: 85vh;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    min-height: calc(100vh - 80px);
-    padding: 0 50px;
-    gap: 50px;
-    box-sizing: border-box;
+    gap: 40px;
+    padding: 50px 6%;
 }
 
 .hero-content {
     flex: 1;
-    max-width: 600px;
 }
 
 .hero-content h2 {
-    font-size: 48px;
-    color: #064e3b;
-    margin-bottom: 20px;
+    color: #075b46;
+    font-size: 46px;
     line-height: 1.2;
+    margin-bottom: 20px;
 }
 
 .hero-content p {
-    font-size: 18px;
     color: #555;
-    margin-bottom: 30px;
-    line-height: 1.6;
+    font-size: 18px;
+    line-height: 1.7;
+    margin-bottom: 25px;
 }
 
-.hero-image-container {
+.hero-image {
     flex: 1;
-    height: 100%;
 }
 
-.hero-image-container img {
+.hero-image img {
     width: 100%;
-    height: 500px;
+    height: 450px;
     object-fit: cover;
-    border-radius: 20px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-}
-
-.btn-solid {
-    background-color: #047857;
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    font-size: 16px;
-}
-
-.btn-outline {
-    background-color: transparent;
-    color: #047857;
-    border: 1px solid #047857;
-    padding: 10px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    margin-right: 10px;
+    border-radius: 18px;
 }
 
 .modal {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 15px;
 }
 
 .modal-content {
@@ -104,46 +102,63 @@ body {
     padding: 30px;
     border-radius: 12px;
     width: 380px;
+    max-width: 100%;
     position: relative;
 }
 
-.close-btn {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background: none;
-    border: none;
-    font-size: 20px;
-    cursor: pointer;
+.modal-content h2 {
+    color: #087f5b;
+    margin-bottom: 20px;
 }
 
 .modal-content input,
 .modal-content select {
     width: 100%;
     padding: 12px;
-    margin: 8px 0 16px 0;
+    margin: 10px 0;
     border: 1px solid #ccc;
     border-radius: 6px;
-    box-sizing: border-box;
+}
+
+.close-btn {
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    background: none;
+    border: none;
+    font-size: 25px;
+    cursor: pointer;
+}
+
+.full-width {
+    width: 100%;
+    margin-top: 12px;
 }
 
 .hidden {
     display: none !important;
 }
 
-.w-full {
-    width: 100%;
+#auth-message {
+    margin-top: 12px;
+    color: #d32f2f;
 }
 
-.dashboard {
-    background: #d1fae5;
-    padding: 60px;
-    border-radius: 16px;
-    margin: 40px 50px;
-}
+@media(max-width: 800px) {
+    .hero {
+        flex-direction: column;
+        padding: 35px 20px;
+    }
 
-.dashboard h2 {
-    color: #064e3b;
-    font-size: 36px;
-    margin-top: 0;
+    .hero-content h2 {
+        font-size: 34px;
+    }
+
+    .hero-image img {
+        height: 300px;
+    }
+
+    .navbar {
+        padding: 18px;
+    }
 }
