@@ -4,139 +4,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Helper Dashboard | AmarElder</title>
-    <link rel="stylesheet" href="dashboard.css">
+    <title>Helper Dashboard - AmarElder</title>
+    <link rel="stylesheet" href="../dashboard.css">
 </head>
 
-<body class="dashboard-body">
+<body>
 
-    <div class="dash-layout">
+    <div class="dashboard-layout">
 
         <aside class="sidebar">
-
-            <a href="../index.html" class="logo">AmarElder</a>
-
-            <p>Helper Panel</p>
+            <h2 class="brand">AmarElder</h2>
 
             <nav>
-                <a href="#overview" class="side-link active">Overview</a>
-                <a href="#available" class="side-link">Available Requests</a>
-                <a href="#accepted" class="side-link">My Accepted Requests</a>
-                <a href="#profile" class="side-link">My Profile</a>
-                <a href="#notifications" class="side-link">Notifications</a>
+                <a href="#" class="active" onclick="showSection('overview',this);return false;">Overview</a>
+                <a href="#" onclick="showSection('available',this);return false;">Available Requests</a>
+                <a href="#" onclick="showSection('my-tasks',this);return false;">My Requests</a>
+                <a href="#" onclick="showSection('notifications',this);return false;">Notifications</a>
+                <a href="#" onclick="showSection('profile',this);return false;">My Profile</a>
             </nav>
 
-            <button class="btn" onclick="logout()">Logout</button>
-
+            <button class="btn-danger" onclick="logout()">Logout</button>
         </aside>
 
-        <main class="dash-main">
+        <main class="main-content">
 
-            <div class="dash-top" id="overview">
+            <header class="topbar">
+                <h2>Helper Dashboard</h2>
+                <p>Welcome, <span id="user-name"></span></p>
+            </header>
 
-                <div>
-                    <p class="muted">Helper Dashboard</p>
-                    <h1 id="welcome">Welcome!</h1>
+            <section id="overview" class="section active">
+                <div class="welcome">
+                    <h2>Hello, <span id="welcome-name"></span>!</h2>
+                    <p>Thank you for helping others.</p>
                 </div>
 
-                <span class="tag">Volunteer community</span>
-
-            </div>
-
-            <div class="stats">
-
-                <div class="stat-card">
-                    <strong id="available-count">0</strong>
-                    <span>Available Requests</span>
-                </div>
-
-                <div class="stat-card">
-                    <strong id="accepted-count">0</strong>
-                    <span>Accepted</span>
-                </div>
-
-                <div class="stat-card">
-                    <strong id="completed-count">0</strong>
-                    <span>Completed by Me</span>
-                </div>
-
-                <div class="stat-card">
-                    <strong id="total-count">0</strong>
-                    <span>My Total Tasks</span>
-                </div>
-
-            </div>
-
-            <section class="panel" id="available">
-
-                <h2>Available Help Requests</h2>
-
-                <div id="available-list" class="request-list"></div>
-
-            </section>
-
-            <section class="panel" id="accepted">
-
-                <h2>My Accepted Requests</h2>
-
-                <div id="accepted-list" class="request-list"></div>
-
-            </section>
-
-            <section class="panel" id="profile">
-
-                <h2>My Profile</h2>
-
-                <form id="profile-form" class="profile-grid">
-
-                    <label>
-                        Full Name
-                        <input type="text" id="profile-name" disabled>
-                    </label>
-
-                    <label>
-                        Email
-                        <input type="email" id="profile-email" disabled>
-                    </label>
-
-                    <label>
-                        Phone
-                        <input type="text" id="profile-phone" placeholder="Phone number">
-                    </label>
-
-                    <label>
-                        Address
-                        <input type="text" id="profile-address" placeholder="Your address">
-                    </label>
-
-                    <label class="full">
-                        Skills / Availability
-                        <textarea id="profile-skills" rows="2"
-                            placeholder="Example: shopping help, weekends"></textarea>
-                    </label>
-
-                    <div class="full">
-                        <button type="submit" class="btn">Save Profile</button>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3 id="available-count">0</h3>
+                        <p>Available Requests</p>
                     </div>
+                    <div class="stat-card">
+                        <h3 id="accepted-count">0</h3>
+                        <p>Accepted Requests</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="completed-count">0</h3>
+                        <p>Completed Requests</p>
+                    </div>
+                </div>
 
-                </form>
-
+                <div class="panel">
+                    <h3>My Recent Tasks</h3>
+                    <div id="recent-tasks"></div>
+                </div>
             </section>
 
-            <section class="panel" id="notifications">
+            <section id="available" class="section">
+                <div class="panel">
+                    <h2>Available Help Requests</h2>
+                    <div id="available-list"></div>
+                </div>
+            </section>
 
-                <h2>Notifications</h2>
+            <section id="my-tasks" class="section">
+                <div class="panel">
+                    <h2>My Accepted Requests</h2>
+                    <div id="my-task-list"></div>
+                </div>
+            </section>
 
-                <div id="notification-list"></div>
+            <section id="notifications" class="section">
+                <div class="panel">
+                    <h2>Notifications</h2>
+                    <div id="notification-list"></div>
+                </div>
+            </section>
 
+            <section id="profile" class="section">
+                <div class="panel">
+                    <h2>My Profile</h2>
+
+                    <form id="profile-form">
+                        <div class="form-group">
+                            <label>Name</label>
+                            <input type="text" id="profile-name" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="profile-email" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Phone</label>
+                            <input type="text" id="profile-phone">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Address</label>
+                            <input type="text" id="profile-address">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Skills</label>
+                            <input type="text" id="profile-skills">
+                        </div>
+
+                        <button type="submit" class="btn">Update Profile</button>
+                    </form>
+                </div>
             </section>
 
         </main>
-
     </div>
 
     <script src="dashboard.js"></script>
-
 </body>
 
 </html>
